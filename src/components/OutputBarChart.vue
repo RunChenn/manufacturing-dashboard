@@ -1,48 +1,20 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { toRef } from 'vue'
 import VChart from 'vue-echarts'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { BarChart } from 'echarts/charts'
 import { GridComponent, TooltipComponent } from 'echarts/components'
-import type { BarSeriesOption } from 'echarts/charts'
-import type { GridComponentOption, TooltipComponentOption } from 'echarts/components'
-import type { ComposeOption } from 'echarts/core'
+import { useOutputBarOption } from '../composables/useChartOptions'
 import type { ProductionLine } from '../types/mes'
 
 use([CanvasRenderer, BarChart, GridComponent, TooltipComponent])
-
-type ChartOption = ComposeOption<GridComponentOption | TooltipComponentOption | BarSeriesOption>
 
 const props = defineProps<{
   lines: ProductionLine[]
 }>()
 
-const option = computed<ChartOption>(() => ({
-  color: ['#2563eb', '#94a3b8'],
-  tooltip: { trigger: 'axis' },
-  grid: { top: 24, right: 18, bottom: 28, left: 48 },
-  xAxis: {
-    type: 'category',
-    data: props.lines.map((line) => line.name),
-    axisTick: { show: false },
-  },
-  yAxis: { type: 'value' },
-  series: [
-    {
-      name: '產出',
-      type: 'bar',
-      data: props.lines.map((line) => line.output),
-      barMaxWidth: 34,
-    },
-    {
-      name: '目標',
-      type: 'bar',
-      data: props.lines.map((line) => line.target),
-      barMaxWidth: 34,
-    },
-  ],
-}))
+const option = useOutputBarOption(toRef(props, 'lines'))
 </script>
 
 <template>

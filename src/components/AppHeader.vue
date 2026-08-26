@@ -1,22 +1,17 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useMockSocket } from '../composables/useMockSocket'
+import { usePermission } from '../composables/usePermission'
 import { useAuthStore } from '../stores/auth.store'
-import { useNotificationStore } from '../stores/notification.store'
 
 const auth = useAuthStore()
-const notifications = useNotificationStore()
+const socket = useMockSocket()
+const { roleLabel } = usePermission()
 const router = useRouter()
-
-const roleLabel = computed(() => ({
-  admin: 'Admin',
-  engineer: 'Engineer',
-  viewer: 'Viewer',
-}[auth.user?.role ?? 'viewer']))
 
 function logout() {
   auth.logout()
-  notifications.stopMockSocket()
+  socket.stop()
   router.push({ name: 'login' })
 }
 </script>
@@ -32,11 +27,11 @@ function logout() {
         <div class="min-w-0 rounded border border-slate-200 px-3 py-2 text-sm text-slate-600">
           <span class="block truncate">{{ roleLabel }} · {{ auth.user?.name }}</span>
         </div>
-        <div class="min-w-0 rounded border px-3 py-2 text-sm" :class="notifications.connected ? 'border-emerald-200 text-emerald-700' : 'border-amber-200 text-amber-700'">
-          <span class="block truncate">{{ notifications.statusMessage }}</span>
+        <div class="min-w-0 rounded border px-3 py-2 text-sm" :class="socket.connected.value ? 'border-emerald-200 text-emerald-700' : 'border-amber-200 text-amber-700'">
+          <span class="block truncate">{{ socket.statusMessage }}</span>
         </div>
         <div class="rounded border border-slate-200 px-3 py-2 text-sm text-slate-600">
-          未讀 <span class="font-bold text-slate-950">{{ notifications.unreadCount }}</span>
+          未讀 <span class="font-bold text-slate-950">{{ socket.unreadCount }}</span>
         </div>
         <button
           class="rounded bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"

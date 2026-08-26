@@ -2,6 +2,14 @@ import type { DashboardResponse, LoginPayload, LoginResponse, NotificationItem, 
 
 const wait = (ms = 350) => new Promise((resolve) => window.setTimeout(resolve, ms))
 
+function createId() {
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+    return crypto.randomUUID()
+  }
+
+  return `mock-${Date.now()}-${Math.random().toString(36).slice(2)}`
+}
+
 const rolePermissions: Record<UserRole, Permission[]> = {
   admin: ['dashboard:view', 'line:update', 'notification:manage', 'admin:operate'],
   engineer: ['dashboard:view', 'line:update'],
@@ -103,7 +111,7 @@ export function createMockNotification(): NotificationItem {
   const item = samples[Math.floor(Math.random() * samples.length)]
 
   return {
-    id: crypto.randomUUID(),
+    id: createId(),
     ...item,
     createdAt: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
     read: false,
